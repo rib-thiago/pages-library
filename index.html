@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pages Library</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/app.js" defer></script>
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <div class="container">
+        <h1>Pages Library</h1>
+        <p class="site-subtitle">Biblioteca estática para PDFs e álbuns selecionados.</p>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <label class="search-label" for="search-input">Buscar</label>
+      <input
+        class="search-input"
+        id="search-input"
+        type="search"
+        placeholder="Título, autor, artista, ano, coleção ou tag"
+        autocomplete="off"
+      >
+
+      <p class="status-message" id="home-status" role="status"></p>
+
+      <section class="content-section" aria-labelledby="pdfs-title">
+        <div class="section-heading">
+          <h2 id="pdfs-title">PDFs</h2>
+          <span class="item-count" id="pdf-count"></span>
+        </div>
+        <div class="card-grid" id="pdf-list"></div>
+      </section>
+
+      <section class="content-section" aria-labelledby="music-title">
+        <div class="section-heading">
+          <h2 id="music-title">Música</h2>
+          <span class="item-count" id="album-count"></span>
+        </div>
+        <div class="card-grid" id="album-list"></div>
+      </section>
+    </main>
+  </body>
+</html>
