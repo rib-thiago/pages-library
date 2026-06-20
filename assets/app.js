@@ -1,3 +1,4 @@
+const APP_VERSION = "20260620-3";
 const CATALOG_PATH = `data/catalog.json?v=${Date.now()}`;
 
 async function loadCatalog() {

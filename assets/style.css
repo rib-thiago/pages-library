@@ -33,6 +33,23 @@ a:focus-visible {
   color: #ffffff;
 }
 
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  background: var(--accent);
+  color: #0b1113;
+}
+
 .container {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;

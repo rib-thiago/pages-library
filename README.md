@@ -139,7 +139,7 @@ python3 scripts/library-importer.py
 
 Ele busca PDFs em `/srv/media/calibre-library` e álbuns em `/srv/media/music`. É possível buscar por termo ou navegar pelas pastas de autores/artistas até escolher um PDF ou álbum. O script copia os arquivos escolhidos para dentro deste repositório e atualiza `data/catalog.json`.
 
-Antes de aplicar, o importador mostra um resumo e oferece dry-run. Depois de uma importação, ele também pode validar o catálogo, mostrar `git status`, fazer commit e fazer push. Commit e push sempre pedem confirmação explícita.
+Antes de aplicar, o importador mostra um resumo e oferece dry-run. Ele também permite remover PDFs ou álbuns do catálogo e, com confirmação explícita, apagar os arquivos associados dentro do repositório. Depois de uma alteração, o menu pode validar o catálogo, mostrar `git status`, fazer commit e fazer push. Commit e push sempre pedem confirmação explícita.
 
 Fluxo recomendado:
 
@@ -148,6 +148,12 @@ Fluxo recomendado:
 3. Valide o catálogo pelo menu.
 4. Teste localmente com `python3 -m http.server 8000`.
 5. Faça commit e push pelo script ou manualmente.
+
+Depois do deploy no GitHub Pages, se o navegador ainda mostrar conteúdo antigo, abra a home com um parâmetro novo de cache busting, por exemplo:
+
+```text
+https://rib-thiago.github.io/pages-library/?v=force3
+```
 
 Depois de importar, teste localmente:
 
