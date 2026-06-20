@@ -1,4 +1,4 @@
-const CATALOG_PATH = "data/catalog.json";
+const CATALOG_PATH = "data/catalog.json?v=20260620";
 
 async function loadCatalog() {
   const response = await fetch(CATALOG_PATH);
