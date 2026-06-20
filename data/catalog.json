@@ -539,6 +539,118 @@
         }
       ],
       "cover": "music/karlheinz-stockhausen/051-welt-parlament-1996/cover.jpg"
+    },
+    {
+      "id": "nana-vasconcelos-bush-dance",
+      "artist": "Naná Vasconcelos",
+      "title": "Bush Dance",
+      "year": "1989",
+      "collection": "Música",
+      "tags": [],
+      "description": "Álbum selecionado da biblioteca musical.",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Mamae Cadé Baléia",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/01-mamae-cade-baleia.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Bush Dance",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/02-bush-dance.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Xingu Xangô",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/03-xingu-xango.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Paletó",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/04-paleto.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 5,
+          "title": "Eyes and Smiles",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/05-eyes-and-smiles.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 6,
+          "title": "Calmaria",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/06-calmaria.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 7,
+          "title": "Aquela do Milton",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/07-aquela-do-milton.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 8,
+          "title": "Estréla brilhante",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/08-estrela-brilhante.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 9,
+          "title": "Futebol",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/09-futebol.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 10,
+          "title": "Balança réde",
+          "sources": [
+            {
+              "src": "music/nana-vasconcelos/bush-dance/10-balanca-rede.flac",
+              "type": "audio/flac"
+            }
+          ]
+        }
+      ],
+      "cover": "music/nana-vasconcelos/bush-dance/cover.jpg"
     }
   ]
 }
