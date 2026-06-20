@@ -129,6 +129,31 @@ https://rib-thiago.github.io/pages-library/album.html?id=meu-album
 
 O player usa um único elemento `<audio controls>` e cria elementos `<source>` a partir de `tracks[].sources`. Arquivos FLAC devem ser cadastrados com `type` igual a `audio/flac`. O suporte de reprodução depende do navegador do visitante; manter uma fonte alternativa `audio/mpeg` é opcional, mas recomendado quando compatibilidade ampla for necessária.
 
+## Adicionar materiais com o importador interativo
+
+Rode o importador a partir da raiz do repositório:
+
+```bash
+python3 scripts/library-importer.py
+```
+
+Ele busca PDFs em `/srv/media/calibre-library` e álbuns em `/srv/media/music`, copia os arquivos escolhidos para dentro deste repositório e atualiza `data/catalog.json`. O script mostra um resumo antes de aplicar e também oferece dry-run.
+
+Depois de importar, teste localmente:
+
+```bash
+python3 -m http.server 8000
+```
+
+Em seguida, revise e publique manualmente:
+
+```bash
+git status
+git add .
+git commit -m "Add selected library materials"
+git push
+```
+
 ## GitHub Pages
 
 GitHub Pages é uma hospedagem estática. Este projeto não possui backend, banco de dados, login, API própria ou processamento no servidor.
