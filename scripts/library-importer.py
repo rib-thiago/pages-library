@@ -7,13 +7,12 @@ import argparse
 import json
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from urllib.error import URLError
-from urllib.request import Request, urlopen
 
 
 DEFAULT_CALIBRE_ROOT = Path("/srv/media/calibre-library")
@@ -41,6 +40,11 @@ COVER_NAMES = [
     "folder.png",
     "front.png",
 ]
+
+
+def handle_sigint(signum, frame) -> None:
+    print("\nInterrompido pelo usuário.")
+    raise SystemExit(0)
 
 
 def load_catalog(catalog_path: Path) -> dict:
@@ -120,6 +124,8 @@ def search_pdfs(calibre_root: Path, term: str) -> list[Path]:
         return results
 
     for path in calibre_root.rglob("*.pdf"):
+        if is_hidden_path(path, calibre_root):
+            continue
         if needle in str(path).casefold():
             results.append(path)
             if len(results) >= MAX_RESULTS:
@@ -130,7 +136,15 @@ def search_pdfs(calibre_root: Path, term: str) -> list[Path]:
 def list_top_level_dirs(root: Path) -> list[Path]:
     if not root.exists():
         return []
-    return sorted([path for path in root.iterdir() if path.is_dir()], key=natural_sort_key)
+    return sorted([path for path in root.iterdir() if path.is_dir() and not is_hidden_path(path, root)], key=natural_sort_key)
+
+
+def is_hidden_path(path: Path, root: Path) -> bool:
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:
+        parts = path.parts
+    return any(part.startswith(".") for part in parts)
 
 
 def direct_audio_files(directory: Path) -> list[Path]:
@@ -151,6 +165,8 @@ def search_album_dirs(music_root: Path, term: str) -> list[tuple[Path, list[Path
         return results
 
     for directory in music_root.rglob("*"):
+        if is_hidden_path(directory, music_root):
+            continue
         if not directory.is_dir() or needle not in str(directory).casefold():
             continue
 
@@ -396,7 +412,8 @@ def import_pdf_path(args: argparse.Namespace, chosen: Path) -> dict | None:
     print("PDF importado com sucesso.")
     print_urls("pdf.html", item_id)
     context = {"kind": "pdf", "id": item_id, "page": "pdf.html"}
-    post_import_menu(args, context)
+    if post_change_menu(args, context) == "exit":
+        raise SystemExit(0)
     return context
 
 
@@ -499,7 +516,8 @@ def import_album_dir(
     print("Álbum importado com sucesso.")
     print_urls("album.html", item_id)
     context = {"kind": "album", "id": item_id, "page": "album.html"}
-    post_import_menu(args, context)
+    if post_change_menu(args, context) == "exit":
+        raise SystemExit(0)
     return context
 
 
@@ -610,6 +628,195 @@ def validate_catalog(args: argparse.Namespace) -> None:
     print(f"Álbuns: {len(catalog.get('albums', []))}")
 
 
+def safe_repo_path(repo_root: Path, relative_path: str | None) -> Path | None:
+    if not relative_path:
+        return None
+    candidate = Path(relative_path)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        return None
+    resolved = (repo_root / candidate).resolve()
+    try:
+        resolved.relative_to(repo_root)
+    except ValueError:
+        return None
+    return resolved
+
+
+def safe_music_dir(repo_root: Path, directory: Path | None) -> Path | None:
+    if directory is None:
+        return None
+    resolved = directory.resolve()
+    music_root = (repo_root / "music").resolve()
+    try:
+        resolved.relative_to(music_root)
+    except ValueError:
+        return None
+    return resolved
+
+
+def file_size(path: Path | None) -> int:
+    return path.stat().st_size if path and path.exists() and path.is_file() else 0
+
+
+def remove_item_submenu(args: argparse.Namespace) -> None:
+    while True:
+        print("\nRemover item\n")
+        print("1) Remover PDF")
+        print("2) Remover álbum")
+        print("0) Voltar")
+        choice = input("Escolha: ").strip().lower()
+
+        if choice == "1":
+            remove_pdf_flow(args)
+        elif choice == "2":
+            remove_album_flow(args)
+        elif choice in {"0", "q"}:
+            return
+        else:
+            print("Opção inválida.")
+
+
+def remove_pdf_flow(args: argparse.Namespace) -> None:
+    catalog = load_catalog(args.catalog)
+    pdfs = catalog.get("pdfs", [])
+    chosen = choose_from_list(
+        pdfs,
+        lambda item: f"{item.get('id')} | {item.get('title')} | {item.get('author')} | {item.get('file')}",
+        "PDFs cadastrados",
+    )
+    if not chosen:
+        return
+
+    pdf_path = safe_repo_path(args.repo_root, chosen.get("file"))
+    print("\nResumo do PDF")
+    print(f"id: {chosen.get('id')}")
+    print(f"título: {chosen.get('title')}")
+    print(f"autor: {chosen.get('author')}")
+    print(f"arquivo: {chosen.get('file')}")
+    print(f"arquivo dentro do repo: {'sim' if pdf_path else 'não'}")
+    print(f"existe: {'sim' if pdf_path and pdf_path.exists() else 'não'}")
+    if pdf_path and pdf_path.exists():
+        print(f"tamanho: {human_size(file_size(pdf_path))}")
+
+    print("\n1) Remover apenas do catálogo")
+    print("2) Remover do catálogo e apagar arquivo associado")
+    print("0) Cancelar")
+    action = input("Escolha: ").strip().lower()
+    if action in {"0", "q"}:
+        print("Operação cancelada.")
+        return
+    if action not in {"1", "2"}:
+        print("Opção inválida.")
+        return
+    if action == "2" and not pdf_path:
+        print("Operação recusada: caminho inválido ou fora do repositório.")
+        return
+
+    catalog["pdfs"] = [item for item in pdfs if item.get("id") != chosen.get("id")]
+    if action == "2" and pdf_path and pdf_path.exists():
+        pdf_path.unlink()
+        parent = pdf_path.parent
+        if parent.exists() and parent.is_dir() and not any(parent.iterdir()):
+            if confirm(f"A pasta {repo_relative(args.repo_root, parent)} ficou vazia. Remover pasta?", False):
+                parent.rmdir()
+
+    save_catalog(args.catalog, catalog)
+    validate_catalog(args)
+    print("PDF removido.")
+    if post_change_menu(args, {"kind": "remove-pdf", "id": chosen.get("id"), "page": "pdf.html"}) == "exit":
+        raise SystemExit(0)
+
+
+def remove_album_flow(args: argparse.Namespace) -> None:
+    catalog = load_catalog(args.catalog)
+    albums = catalog.get("albums", [])
+    chosen = choose_from_list(
+        albums,
+        lambda item: f"{item.get('id')} | {item.get('artist')} | {item.get('title')} | {len(item.get('tracks', []))} faixas",
+        "Álbuns cadastrados",
+    )
+    if not chosen:
+        return
+
+    files = album_catalog_files(args.repo_root, chosen)
+    existing_files = [path for path in files if path.exists() and path.is_file()]
+    album_dir = probable_album_dir(args.repo_root, chosen, files)
+    safe_album_dir = safe_music_dir(args.repo_root, album_dir)
+
+    print("\nResumo do álbum")
+    print(f"id: {chosen.get('id')}")
+    print(f"artista: {chosen.get('artist')}")
+    print(f"título: {chosen.get('title')}")
+    print(f"cover: {chosen.get('cover', '')}")
+    print("sources:")
+    for path in files:
+        print(f"- {repo_relative(args.repo_root, path) if path else '(inválido)'}")
+    print(f"diretório provável: {repo_relative(args.repo_root, safe_album_dir) if safe_album_dir else '(inválido)'}")
+    print(f"tamanho total existente: {human_size(sum(file_size(path) for path in existing_files))}")
+
+    print("\n1) Remover apenas do catálogo")
+    print("2) Remover do catálogo e apagar arquivos associados")
+    print("3) Remover do catálogo e apagar diretório do álbum inteiro, se estiver dentro de music/")
+    print("0) Cancelar")
+    action = input("Escolha: ").strip().lower()
+    if action in {"0", "q"}:
+        print("Operação cancelada.")
+        return
+    if action not in {"1", "2", "3"}:
+        print("Opção inválida.")
+        return
+
+    if action == "2" and any(path is None for path in files):
+        print("Operação recusada: há caminhos inválidos ou fora do repositório.")
+        return
+    if action == "3" and not safe_album_dir:
+        print("Operação recusada: diretório inválido ou fora de music/.")
+        return
+
+    catalog["albums"] = [item for item in albums if item.get("id") != chosen.get("id")]
+    if action == "2":
+        for path in existing_files:
+            path.unlink()
+    elif action == "3" and safe_album_dir and safe_album_dir.exists():
+        print(f"Diretório a remover: {repo_relative(args.repo_root, safe_album_dir)}")
+        for path in sorted(safe_album_dir.rglob("*"), key=natural_sort_key):
+            print(f"- {repo_relative(args.repo_root, path)}")
+        if input("Digite REMOVER para confirmar: ").strip() != "REMOVER":
+            print("Operação cancelada.")
+            return
+        shutil.rmtree(safe_album_dir)
+
+    save_catalog(args.catalog, catalog)
+    validate_catalog(args)
+    print("Álbum removido.")
+    if post_change_menu(args, {"kind": "remove-album", "id": chosen.get("id"), "page": "album.html"}) == "exit":
+        raise SystemExit(0)
+
+
+def album_catalog_files(repo_root: Path, album: dict) -> list[Path | None]:
+    paths: list[Path | None] = []
+    cover = safe_repo_path(repo_root, album.get("cover"))
+    if album.get("cover"):
+        paths.append(cover)
+    for track in album.get("tracks", []):
+        for source in track.get("sources", []):
+            paths.append(safe_repo_path(repo_root, source.get("src")))
+    return paths
+
+
+def probable_album_dir(repo_root: Path, album: dict, files: list[Path | None]) -> Path | None:
+    valid_files = [path for path in files if path is not None]
+    if valid_files:
+        parents = {path.parent for path in valid_files}
+        if len(parents) == 1:
+            return next(iter(parents))
+    artist = slugify(album.get("artist", ""))
+    title = slugify(album.get("title", ""))
+    if artist and title:
+        return repo_root / "music" / artist / title
+    return None
+
+
 def browse_calibre(args: argparse.Namespace) -> dict | None:
     authors = list_top_level_dirs(args.calibre_root)
     author = choose_from_list(
@@ -620,7 +827,7 @@ def browse_calibre(args: argparse.Namespace) -> dict | None:
     if not author:
         return None
 
-    books = sorted([path for path in author.iterdir() if path.is_dir()], key=natural_sort_key)
+    books = sorted([path for path in author.iterdir() if path.is_dir() and not path.name.startswith(".")], key=natural_sort_key)
     book = choose_from_list(
         books,
         lambda path: relative_display(args.calibre_root, path),
@@ -672,7 +879,7 @@ def browse_music_dir(args: argparse.Namespace, directory: Path) -> dict | None:
                 print("Opção inválida.")
                 continue
 
-        subdirs = sorted([path for path in current.iterdir() if path.is_dir()], key=natural_sort_key)
+        subdirs = sorted([path for path in current.iterdir() if path.is_dir() and not path.name.startswith(".")], key=natural_sort_key)
         next_dir = choose_from_list(
             subdirs,
             format_music_browse_item,
@@ -733,14 +940,16 @@ def music_submenu(args: argparse.Namespace) -> None:
             print("Opção inválida.")
 
 
-def post_import_menu(args: argparse.Namespace, context: dict) -> None:
+def post_change_menu(args: argparse.Namespace, context: dict) -> str:
     while True:
-        print("\nPós-importação\n")
+        print("\nPós-alteração\n")
         print("1) Validar catálogo")
         print("2) Mostrar git status")
         print("3) Fazer commit")
         print("4) Fazer commit e push")
-        print("5) Testar URLs locais esperadas com curl -I, se houver servidor local ativo")
+        print("5) Testar URLs locais esperadas com curl -I")
+        print("8) Voltar ao menu principal")
+        print("9) Sair do importador")
         print("0) Voltar ao menu principal")
         choice = input("Escolha: ").strip().lower()
 
@@ -753,13 +962,32 @@ def post_import_menu(args: argparse.Namespace, context: dict) -> None:
         elif choice == "4":
             committed_or_clean = git_commit_interactive(args.repo_root, context)
             if committed_or_clean:
-                git_push_interactive(args.repo_root)
+                pushed = git_push_interactive(args.repo_root)
+                if pushed:
+                    follow_up = post_change_follow_up()
+                    if follow_up:
+                        return follow_up
         elif choice == "5":
-            test_local_urls(context)
-        elif choice in {"0", "q"}:
-            return
+            test_local_urls(args.repo_root, context)
+        elif choice in {"0", "8", "q"}:
+            return "menu"
+        elif choice == "9":
+            return "exit"
         else:
             print("Opção inválida.")
+
+
+def post_change_follow_up() -> str | None:
+    print("\nO que deseja fazer agora?")
+    print("1) Voltar ao menu principal")
+    print("2) Sair do importador")
+    while True:
+        answer = input("Escolha: ").strip().lower()
+        if answer in {"1", "0", "q"}:
+            return "menu"
+        if answer == "2":
+            return "exit"
+        print("Opção inválida.")
 
 
 def run_command(command: list[str], cwd: Path, check: bool = False) -> subprocess.CompletedProcess:
@@ -793,6 +1021,10 @@ def suggested_commit_message(context: dict | None) -> str:
         return "Add selected PDF to pages library"
     if context.get("kind") == "album":
         return "Add selected album to pages library"
+    if context.get("kind") == "remove-pdf":
+        return "Remove selected PDF from pages library"
+    if context.get("kind") == "remove-album":
+        return "Remove selected album from pages library"
     return "Add selected library materials"
 
 
@@ -820,12 +1052,12 @@ def git_commit_interactive(repo_root: Path, context: dict | None = None) -> bool
     return commit_result.returncode == 0
 
 
-def git_push_interactive(repo_root: Path) -> None:
+def git_push_interactive(repo_root: Path) -> bool:
     branch = git_current_branch(repo_root)
     print(f"Branch atual: {branch}")
     if not confirm("Confirmar git push?", False):
         print("Push cancelado.")
-        return
+        return False
 
     result = run_command(["git", "push"], repo_root)
     if result.stdout.strip():
@@ -834,9 +1066,11 @@ def git_push_interactive(repo_root: Path) -> None:
         print(result.stderr.strip())
     if result.returncode != 0:
         print("git push falhou.")
+        return False
+    return True
 
 
-def test_local_urls(context: dict | None = None) -> None:
+def test_local_urls(repo_root: Path, context: dict | None = None) -> None:
     urls = [
         "http://localhost:8000/",
         "http://localhost:8000/data/catalog.json",
@@ -845,14 +1079,12 @@ def test_local_urls(context: dict | None = None) -> None:
         urls.append(f"http://localhost:8000/{context['page']}?id={context['id']}")
 
     for url in urls:
-        try:
-            request = Request(url, method="HEAD")
-            with urlopen(request, timeout=3) as response:
-                print(f"{url} -> {response.status} {response.reason}")
-        except URLError:
+        result = run_command(["curl", "-I", "--max-time", "3", url], repo_root)
+        if result.returncode == 0:
+            first_line = result.stdout.splitlines()[0] if result.stdout.splitlines() else "OK"
+            print(f"{url} -> {first_line}")
+        else:
             print(f"{url} -> sem resposta. Inicie python3 -m http.server 8000.")
-        except OSError as error:
-            print(f"{url} -> erro local: {error}")
 
 
 def main_menu(args: argparse.Namespace) -> None:
@@ -863,6 +1095,7 @@ def main_menu(args: argparse.Namespace) -> None:
         print("3) Listar PDFs já cadastrados no catálogo")
         print("4) Listar álbuns já cadastrados no catálogo")
         print("5) Validar catálogo")
+        print("6) Remover item do catálogo")
         print("0) Sair")
         choice = input("Escolha: ").strip().lower()
 
@@ -876,6 +1109,8 @@ def main_menu(args: argparse.Namespace) -> None:
             list_catalog_albums(args)
         elif choice == "5":
             validate_catalog(args)
+        elif choice == "6":
+            remove_item_submenu(args)
         elif choice in {"0", "q"}:
             print("Saindo.")
             return
@@ -900,6 +1135,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
+    signal.signal(signal.SIGINT, handle_sigint)
     args = parse_args(argv or sys.argv[1:])
     try:
         load_catalog(args.catalog)
@@ -909,6 +1145,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         main_menu(args)
+    except KeyboardInterrupt:
+        print("\nInterrompido pelo usuário.")
     except EOFError:
         print("\nSaindo.")
     return 0

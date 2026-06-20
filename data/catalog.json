@@ -1,34 +1,6 @@
 {
   "pdfs": [
     {
-      "id": "manual-catalogacao-2024",
-      "title": "Manual de Catalogação Local",
-      "author": "Equipe Pages Library",
-      "year": "2024",
-      "collection": "Documentação",
-      "tags": [
-        "catalogo",
-        "biblioteca",
-        "referencia"
-      ],
-      "description": "Guia fictício para padronizar metadados de PDFs em uma biblioteca estática.",
-      "file": "pdfs/manual-catalogacao-2024.pdf"
-    },
-    {
-      "id": "ensaio-arquivos-estaticos",
-      "title": "Ensaio Sobre Arquivos Estáticos",
-      "author": "Marina Costa",
-      "year": "2023",
-      "collection": "Ensaios",
-      "tags": [
-        "web",
-        "github-pages",
-        "preservacao"
-      ],
-      "description": "Texto fictício sobre organização de acervos pequenos em hospedagem estática.",
-      "file": "pdfs/ensaio-arquivos-estaticos.pdf"
-    },
-    {
       "id": "i-want-to-believe-posadism-ufos-apocalypse-communism",
       "title": "I Want to Believe: Posadism, UFOs and Apocalypse Communism",
       "author": "A. M. Gittlitz",
@@ -56,82 +28,6 @@
     }
   ],
   "albums": [
-    {
-      "id": "noite-de-inverno",
-      "title": "Noite de Inverno",
-      "artist": "Clara Nunes Trio",
-      "year": "2022",
-      "collection": "Sessões ao Vivo",
-      "tags": [
-        "jazz",
-        "instrumental",
-        "flac"
-      ],
-      "description": "Álbum fictício com gravações instrumentais em alta resolução.",
-      "cover": "music/noite-de-inverno/cover.jpg",
-      "tracks": [
-        {
-          "title": "Primeira Luz",
-          "sources": [
-            {
-              "src": "music/noite-de-inverno/01-primeira-luz.flac",
-              "type": "audio/flac"
-            },
-            {
-              "src": "music/noite-de-inverno/01-primeira-luz.mp3",
-              "type": "audio/mpeg"
-            }
-          ]
-        },
-        {
-          "title": "Rua Sem Nome",
-          "sources": [
-            {
-              "src": "music/noite-de-inverno/02-rua-sem-nome.flac",
-              "type": "audio/flac"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "mapas-do-som",
-      "title": "Mapas do Som",
-      "artist": "Projeto Horizonte",
-      "year": "2021",
-      "collection": "Estúdio",
-      "tags": [
-        "ambient",
-        "experimental",
-        "flac"
-      ],
-      "description": "Registro fictício de paisagens sonoras criado para demonstrar o player estático.",
-      "cover": "music/mapas-do-som/cover.jpg",
-      "tracks": [
-        {
-          "title": "Costa Norte",
-          "sources": [
-            {
-              "src": "music/mapas-do-som/01-costa-norte.flac",
-              "type": "audio/flac"
-            },
-            {
-              "src": "music/mapas-do-som/01-costa-norte.mp3",
-              "type": "audio/mpeg"
-            }
-          ]
-        },
-        {
-          "title": "Linhas de Pedra",
-          "sources": [
-            {
-              "src": "music/mapas-do-som/02-linhas-de-pedra.flac",
-              "type": "audio/flac"
-            }
-          ]
-        }
-      ]
-    },
     {
       "id": "stockhausen-051-welt-parlament-1996",
       "artist": "Karlheinz Stockhausen",
