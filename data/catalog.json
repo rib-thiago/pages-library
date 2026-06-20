@@ -6,7 +6,11 @@
       "author": "Equipe Pages Library",
       "year": "2024",
       "collection": "Documentação",
-      "tags": ["catalogo", "biblioteca", "referencia"],
+      "tags": [
+        "catalogo",
+        "biblioteca",
+        "referencia"
+      ],
       "description": "Guia fictício para padronizar metadados de PDFs em uma biblioteca estática.",
       "file": "pdfs/manual-catalogacao-2024.pdf"
     },
@@ -16,9 +20,29 @@
       "author": "Marina Costa",
       "year": "2023",
       "collection": "Ensaios",
-      "tags": ["web", "github-pages", "preservacao"],
+      "tags": [
+        "web",
+        "github-pages",
+        "preservacao"
+      ],
       "description": "Texto fictício sobre organização de acervos pequenos em hospedagem estática.",
       "file": "pdfs/ensaio-arquivos-estaticos.pdf"
+    },
+    {
+      "id": "i-want-to-believe-posadism-ufos-apocalypse-communism",
+      "title": "I Want to Believe: Posadism, UFOs and Apocalypse Communism",
+      "author": "A. M. Gittlitz",
+      "year": "2020",
+      "collection": "Biblioteca Calibre",
+      "tags": [
+        "posadismo",
+        "ufos",
+        "comunismo",
+        "apocalipse",
+        "teoria política"
+      ],
+      "description": "PDF selecionado da biblioteca Calibre para teste do leitor estático.",
+      "file": "pdfs/a-m-gittlitz/i-want-to-believe-posadism-ufos-and-apocalypse-communism.pdf"
     }
   ],
   "albums": [
@@ -28,7 +52,11 @@
       "artist": "Clara Nunes Trio",
       "year": "2022",
       "collection": "Sessões ao Vivo",
-      "tags": ["jazz", "instrumental", "flac"],
+      "tags": [
+        "jazz",
+        "instrumental",
+        "flac"
+      ],
       "description": "Álbum fictício com gravações instrumentais em alta resolução.",
       "cover": "music/noite-de-inverno/cover.jpg",
       "tracks": [
@@ -62,7 +90,11 @@
       "artist": "Projeto Horizonte",
       "year": "2021",
       "collection": "Estúdio",
-      "tags": ["ambient", "experimental", "flac"],
+      "tags": [
+        "ambient",
+        "experimental",
+        "flac"
+      ],
       "description": "Registro fictício de paisagens sonoras criado para demonstrar o player estático.",
       "cover": "music/mapas-do-som/cover.jpg",
       "tracks": [
@@ -89,6 +121,424 @@
           ]
         }
       ]
+    },
+    {
+      "id": "stockhausen-051-welt-parlament-1996",
+      "artist": "Karlheinz Stockhausen",
+      "title": "051 Stockhausen - Welt-Parlament",
+      "year": "1996",
+      "collection": "Licht pt. 2",
+      "tags": [
+        "stockhausen",
+        "licht",
+        "opera",
+        "musica contemporanea",
+        "flac"
+      ],
+      "description": "Álbum FLAC selecionado da coleção local para teste do player estático.",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Welt-Parlament - Takt 1 - Glocke und Eingang",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/01-welt-parlament-takt-1-glocke-und-eingang.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Welt-Parlament - Takt 2 - Gruppensoli",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/02-welt-parlament-takt-2-gruppensoli.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Welt-Parlament - Takt 11 - Präsident - Mittwoch aus Licht",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/03-welt-parlament-takt-11-prasident-mittwoch-aus-licht.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Welt-Parlament - Takt 12 - 2. Glocke, Präsident - Wednesday from Light",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/04-welt-parlament-takt-12-2-glocke-prasident-wednesday-from-light.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 5,
+          "title": "Welt-Parlament - Takt 24 - Präsident - Mercoledi da Luce",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/05-welt-parlament-takt-24-prasident-mercoledi-da-luce.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 6,
+          "title": "Welt-Parlament - Takt 26 - 3. Glocke, Tutti - [ -h -]",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/06-welt-parlament-takt-26-3-glocke-tutti-h.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 7,
+          "title": "Welt-Parlament - Takt 31 - Präsident - 'Weltparliament - die Liebe ist hier unser Thema.'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/07-welt-parlament-takt-31-prasident-weltparliament-die-liebe-ist-hier-unser-thema.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 8,
+          "title": "Welt-Parlament - Takt 34 - Altistinnen - MI CHA EL",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/08-welt-parlament-takt-34-altistinnen-mi-cha-el.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 9,
+          "title": "Welt-Parlament - Takt 38 - Altistinnen - [ -æ æ æ -]",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/09-welt-parlament-takt-38-altistinnen.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 10,
+          "title": "Welt-Parlament - Takt 41 - 1. Sopran-Solo - 'Liebe ist Treue zum Talent.'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/10-welt-parlament-takt-41-1-sopran-solo-liebe-ist-treue-zum-talent.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 11,
+          "title": "Welt-Parlament - Takt 47 - Präsident - 'Aber Talent muß der Schönheit dienen!'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/11-welt-parlament-takt-47-prasident-aber-talent-mu-der-schonheit-dienen.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 12,
+          "title": "Welt-Parlament - Takt 51 - Bässe - [ -l mo n mo ne mo n mo n di -]",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/12-welt-parlament-takt-51-basse-l-mo-n-mo-ne-mo-n-mo-n-di.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 13,
+          "title": "Welt-Parlament - Takt 55 - 1. Baß-Solo - 'Liebe ist Vergebung.'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/13-welt-parlament-takt-55-1-ba-solo-liebe-ist-vergebung.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 14,
+          "title": "Welt-Parlament, Ende 56 - Präsident - 'Nicht immer!' und Tenöre - 'Ach so '",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/14-welt-parlament-ende-56-prasident-nicht-immer-und-tenore-ach-so.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 15,
+          "title": "Welt-Parlament - Takt 60 - 4. Glocke, Soprane - 'Inana,' Bässe - 'Hator'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/15-welt-parlament-takt-60-4-glocke-soprane-inana-basse-hator.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 16,
+          "title": "Welt-Parlament - Takt 68 - 1. Alt-Solistin - 'Liebe ist Hilfe ohne Vorteil, es geht immer hinauf.'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/16-welt-parlament-takt-68-1-alt-solistin-liebe-ist-hilfe-ohne-vorteil-es-geht-immer-hinauf.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 17,
+          "title": "Welt-Parlament - Takt 73 - Präsident - 'Positiv denken jawohl!'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/17-welt-parlament-takt-73-prasident-positiv-denken-jawohl.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 18,
+          "title": "Welt-Parlament - Takt 78 - Bässe-Gruppensolo - [l n m d n ... mi çi ki] - Takt 79 - Alle Altistinnen - 'Efa Inana Frija aus Liebe'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/18-welt-parlament-takt-78-basse-gruppensolo-l-n-m-d-n-mi-ci-ki-takt-79-alle-altistinnen-efa-inana-frija-aus-liebe.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 19,
+          "title": "Welt-Parlament - Takt 82 - Bariton-Solo - 'Liebe ist Gottes-Licht-Universum...' gleichtzeitig 2. Sopran-Solo - 'Liebe von Evas Mond-Liebe'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/19-welt-parlament-takt-82-bariton-solo-liebe-ist-gottes-licht-universum-gleichtzeitig-2-sopran-solo-liebe-von-evas-mond-liebe.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 20,
+          "title": "Welt-Parlament - Takt 88 - Präsident - 'Liebe tönt nur aus Himmels-Musik.'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/20-welt-parlament-takt-88-prasident-liebe-tont-nur-aus-himmels-musik.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 21,
+          "title": "Welt-Parlament - Takt 91 - Tenöre-Gruppensolo - 'Liebe tönt in Deiner Stimme...'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/21-welt-parlament-takt-91-tenore-gruppensolo-liebe-tont-in-deiner-stimme.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 22,
+          "title": "Welt-Parlament - Takt 105 - Soprane - 'Welten - Mittwoch' - Takt 106 - Alt-Gruppensolo - 'Glück mehr Glück'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/22-welt-parlament-takt-105-soprane-welten-mittwoch-takt-106-alt-gruppensolo-gluck-mehr-gluck.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 23,
+          "title": "Welt-Parlament - Takt 112 - 2. Alt-Solistin - 'Liebe lebt in den Kindern.' - Takt 114 - 1. Tenor-Solo - 'Liebe stirbt mit den vielen Kindern.' - Takt 116 - Präsident - 'Verwarnung!'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/23-welt-parlament-takt-112-2-alt-solistin-liebe-lebt-in-den-kindern-takt-114-1-tenor-solo-liebe-stirbt-mit-den-vielen-kindern-takt-116-prasident-verwarnung.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 24,
+          "title": "Welt-Parlament - Takt 129 - Koloratur-Sopranisten - '[h - - - - - - -] a-mour...'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/24-welt-parlament-takt-129-koloratur-sopranisten-h-a-mour.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 25,
+          "title": "Welt-Parlament - Takt 135 - Frauen-Gruppensolo",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/25-welt-parlament-takt-135-frauen-gruppensolo.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 26,
+          "title": "Welt-Parlament - Takt 143 - Sopran-Polyphonie",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/26-welt-parlament-takt-143-sopran-polyphonie.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 27,
+          "title": "Welt-Parlament - Takt 146 - Fortsetzung Sopran-Polyphonie mit Alt-Rauschen",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/27-welt-parlament-takt-146-fortsetzung-sopran-polyphonie-mit-alt-rauschen.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 28,
+          "title": "Welt-Parlament - Takt 150 - 2. Baß-Solo - 'Liebe ist das verjüngende Elixier.' 3. Alt-Solistin - 'Liebe [ pij pij pij ]'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/28-welt-parlament-takt-150-2-ba-solo-liebe-ist-das-verjungende-elixier-3-alt-solistin-liebe-pij-pij-pij.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 29,
+          "title": "Welt-Parlament - Takt 157 - Präsident - 'Was für eine Welt parlamentin!' - Takt 158 - Alt-Polyphonie mit Sopran-Rauschen",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/29-welt-parlament-takt-157-prasident-was-fur-eine-welt-parlamentin-takt-158-alt-polyphonie-mit-sopran-rauschen.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 30,
+          "title": "Welt-Parlament - Takt 166 - Glocke",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/30-welt-parlament-takt-166-glocke.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 31,
+          "title": "Welt-Parlament - Takt 183 - Trio. 3. Sopran-Solo - 'Liebe Himmels-Manna...' 4. Alt-Solistin - 'Love is Cosmic glue...' 3. Baß-Solo - 'Liebe fängt immer neu an...'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/31-welt-parlament-takt-183-trio-3-sopran-solo-liebe-himmels-manna-4-alt-solistin-love-is-cosmic-glue-3-ba-solo-liebe-fangt-immer-neu-an.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 32,
+          "title": "Welt-Parlament - Takt 188 - Präsident - 'Bravo, einverstanden!' Sopran-Polyphonie mit Alt-Rauschen",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/32-welt-parlament-takt-188-prasident-bravo-einverstanden-sopran-polyphonie-mit-alt-rauschen.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 33,
+          "title": "Welt-Parlament, Auftakt vor 211 - 'Li-hicht' - Hausmeister - 'Hallo!'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/33-welt-parlament-auftakt-vor-211-li-hicht-hausmeister-hallo.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 34,
+          "title": "Welt-Parlament - Takt 214 - 2. Tenor-Solo - 'Koloratur-Efa wird...' 3. Tenor-Solo - 'unsre...' 1. Tenor (+2. +3.) - 'Ersatzpräsidentin'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/34-welt-parlament-takt-214-2-tenor-solo-koloratur-efa-wird-3-tenor-solo-unsre-1-tenor-2-3-ersatzprasidentin.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 35,
+          "title": "Welt-Parlament - Takt 215 - Frauen und Bässe - 'D'accord!'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/35-welt-parlament-takt-215-frauen-und-basse-d-accord.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 36,
+          "title": "Welt-Parlament - Takt 217 - Koloratur-Sopranistin - 'Welt-parlamentarie-Herrinnen'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/36-welt-parlament-takt-217-koloratur-sopranistin-welt-parlamentarie-herrinnen.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 37,
+          "title": "Welt-Parlament - Takt 221 - Frauen - [fa mat ri] Bässe - [ nika]",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/37-welt-parlament-takt-221-frauen-fa-mat-ri-basse-nika.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 38,
+          "title": "Welt-Parlament - Takt 266 - Tutti - 'Welt-Parlament Mittwoch aus Licht,' 'Lie-be,' 'Tag der Versöhnung Liebe,' '[h o a e li-çt]'",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/38-welt-parlament-takt-266-tutti-welt-parlament-mittwoch-aus-licht-lie-be-tag-der-versohnung-liebe-h-o-a-e-li-ct.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 39,
+          "title": "Welt-Parlament - Takt 273 - Glocke und Abgang",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/39-welt-parlament-takt-273-glocke-und-abgang.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 40,
+          "title": "Welt-Parlament - Takt 274 - Stotterer - 'Ja, und hier käme dann die nächste Szene!' - Ausblende - Schluß-Stille",
+          "sources": [
+            {
+              "src": "music/karlheinz-stockhausen/051-welt-parlament-1996/40-welt-parlament-takt-274-stotterer-ja-und-hier-kame-dann-die-nachste-szene-ausblende-schlu-stille.flac",
+              "type": "audio/flac"
+            }
+          ]
+        }
+      ],
+      "cover": "music/karlheinz-stockhausen/051-welt-parlament-1996/cover.jpg"
     }
   ]
 }
