@@ -1,7 +1,7 @@
-const CATALOG_PATH = "data/catalog.json?v=20260620";
+const CATALOG_PATH = `data/catalog.json?v=${Date.now()}`;
 
 async function loadCatalog() {
-  const response = await fetch(CATALOG_PATH);
+  const response = await fetch(CATALOG_PATH, { cache: "no-store" });
 
   if (!response.ok) {
     throw new Error(`Falha ao carregar ${CATALOG_PATH}`);
@@ -54,6 +54,16 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
+function formatMissingItemDetails(id, items) {
+  const availableIds = (items || []).map((item) => item.id).filter(Boolean);
+
+  return `
+    <p>ID procurado: <code>${escapeHtml(id || "(vazio)")}</code></p>
+    <p>Itens carregados: ${availableIds.length}</p>
+    <p>IDs disponíveis: ${availableIds.length ? escapeHtml(availableIds.join(", ")) : "nenhum"}</p>
+  `;
+}
+
 function renderCard(item, type) {
   const href = type === "pdf" ? `pdf.html?id=${encodeURIComponent(item.id)}` : `album.html?id=${encodeURIComponent(item.id)}`;
   const creator = type === "pdf" ? item.author : item.artist;
@@ -99,13 +109,15 @@ function renderHome(catalog) {
 function renderPdfPage(catalog) {
   const container = document.querySelector("#pdf-page");
   const id = getPageId();
-  const pdf = (catalog.pdfs || []).find((item) => item.id === id);
+  const pdfs = catalog.pdfs || [];
+  const pdf = pdfs.find((item) => item.id === id);
 
   if (!pdf) {
     container.innerHTML = `
       <section class="empty-state">
         <h1>PDF não encontrado</h1>
         <p>Não existe um PDF no catálogo com o id informado.</p>
+        ${formatMissingItemDetails(id, pdfs)}
         <a href="index.html">Voltar para a home</a>
       </section>
     `;
@@ -130,13 +142,15 @@ function renderPdfPage(catalog) {
 function renderAlbumPage(catalog) {
   const container = document.querySelector("#album-page");
   const id = getPageId();
-  const album = (catalog.albums || []).find((item) => item.id === id);
+  const albums = catalog.albums || [];
+  const album = albums.find((item) => item.id === id);
 
   if (!album) {
     container.innerHTML = `
       <section class="empty-state">
         <h1>Álbum não encontrado</h1>
         <p>Não existe um álbum no catálogo com o id informado.</p>
+        ${formatMissingItemDetails(id, albums)}
         <a href="index.html">Voltar para a home</a>
       </section>
     `;
