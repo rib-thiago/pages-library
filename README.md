@@ -32,6 +32,35 @@ http://localhost:8000/
 
 O site precisa ser servido por HTTP porque o JavaScript carrega `data/catalog.json` com `fetch`.
 
+Se o servidor estiver rodando em outra máquina acessível por SSH, crie um túnel local:
+
+```bash
+ssh -L 8000:localhost:8000 homelab
+```
+
+Com o túnel ativo, acesse no navegador local:
+
+```text
+http://localhost:8000/
+```
+
+## Publicar no GitHub Pages
+
+Este repositório foi preparado para funcionar como um GitHub Pages project site em:
+
+```text
+https://rib-thiago.github.io/pages-library/
+```
+
+Para publicar:
+
+1. Envie os arquivos para o repositório `pages-library` no GitHub.
+2. Abra as configurações do repositório.
+3. Em Pages, publique a partir da branch desejada e da raiz do projeto.
+4. Aguarde a conclusão do deploy e acesse a URL esperada.
+
+Todos os caminhos usados pelo site são relativos, como `assets/app.js`, `data/catalog.json`, `pdf.html?id=...`, `album.html?id=...`, `pdfs/...` e `music/...`. Por isso, o site funciona dentro do prefixo `/pages-library/` sem configuração adicional.
+
 ## Adicionar um PDF
 
 1. Coloque o arquivo PDF dentro de `pdfs/`, por exemplo `pdfs/meu-documento.pdf`.
@@ -52,6 +81,12 @@ O site precisa ser servido por HTTP porque o JavaScript carrega `data/catalog.js
 ```
 
 O campo `id` deve ser único. A página será aberta em `pdf.html?id=meu-documento`.
+
+Em produção, o link correspondente será:
+
+```text
+https://rib-thiago.github.io/pages-library/pdf.html?id=meu-documento
+```
 
 ## Adicionar um álbum FLAC
 
@@ -85,6 +120,14 @@ O campo `id` deve ser único. A página será aberta em `pdf.html?id=meu-documen
 ```
 
 Cada faixa aceita um array `sources`, permitindo adicionar formatos alternativos no futuro, como `audio/mpeg`.
+
+Em produção, o link correspondente será:
+
+```text
+https://rib-thiago.github.io/pages-library/album.html?id=meu-album
+```
+
+O player usa um único elemento `<audio controls>` e cria elementos `<source>` a partir de `tracks[].sources`. Arquivos FLAC devem ser cadastrados com `type` igual a `audio/flac`. O suporte de reprodução depende do navegador do visitante; manter uma fonte alternativa `audio/mpeg` é opcional, mas recomendado quando compatibilidade ampla for necessária.
 
 ## GitHub Pages
 
