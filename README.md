@@ -137,7 +137,17 @@ Rode o importador a partir da raiz do repositório:
 python3 scripts/library-importer.py
 ```
 
-Ele busca PDFs em `/srv/media/calibre-library` e álbuns em `/srv/media/music`, copia os arquivos escolhidos para dentro deste repositório e atualiza `data/catalog.json`. O script mostra um resumo antes de aplicar e também oferece dry-run.
+Ele busca PDFs em `/srv/media/calibre-library` e álbuns em `/srv/media/music`. É possível buscar por termo ou navegar pelas pastas de autores/artistas até escolher um PDF ou álbum. O script copia os arquivos escolhidos para dentro deste repositório e atualiza `data/catalog.json`.
+
+Antes de aplicar, o importador mostra um resumo e oferece dry-run. Depois de uma importação, ele também pode validar o catálogo, mostrar `git status`, fazer commit e fazer push. Commit e push sempre pedem confirmação explícita.
+
+Fluxo recomendado:
+
+1. Rode `python3 scripts/library-importer.py`.
+2. Navegue ou busque e importe o material escolhido.
+3. Valide o catálogo pelo menu.
+4. Teste localmente com `python3 -m http.server 8000`.
+5. Faça commit e push pelo script ou manualmente.
 
 Depois de importar, teste localmente:
 

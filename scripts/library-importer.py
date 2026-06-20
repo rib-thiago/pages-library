@@ -7,16 +7,20 @@ import argparse
 import json
 import re
 import shutil
+import subprocess
 import sys
 import unicodedata
 from datetime import datetime
 from pathlib import Path
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 
 DEFAULT_CALIBRE_ROOT = Path("/srv/media/calibre-library")
 DEFAULT_MUSIC_ROOT = Path("/srv/media/music")
 GITHUB_PAGES_BASE = "https://rib-thiago.github.io/pages-library"
 MAX_RESULTS = 30
+PAGE_SIZE = 100
 AUDIO_EXTENSIONS = {".flac", ".mp3", ".m4a", ".ogg", ".opus", ".wav"}
 MIME_TYPES = {
     ".flac": "audio/flac",
@@ -121,6 +125,12 @@ def search_pdfs(calibre_root: Path, term: str) -> list[Path]:
             if len(results) >= MAX_RESULTS:
                 break
     return sorted(results, key=natural_sort_key)
+
+
+def list_top_level_dirs(root: Path) -> list[Path]:
+    if not root.exists():
+        return []
+    return sorted([path for path in root.iterdir() if path.is_dir()], key=natural_sort_key)
 
 
 def direct_audio_files(directory: Path) -> list[Path]:
@@ -234,12 +244,52 @@ def choose_result(results: list, formatter) -> object | None:
         print(f"{index}) {formatter(result)}")
 
     while True:
-        answer = input("Escolha um número ou 0 para cancelar: ").strip()
-        if answer == "0":
+        answer = input("Escolha um número ou 0 para cancelar: ").strip().lower()
+        if answer in {"0", "q"}:
             return None
         if answer.isdigit() and 1 <= int(answer) <= len(results):
             return results[int(answer) - 1]
         print("Opção inválida.")
+
+
+def choose_from_list(items: list, formatter, title: str = "Escolha") -> object | None:
+    return paginate_choices(items, formatter, title)
+
+
+def paginate_choices(items: list, formatter, title: str = "Escolha", page_size: int = PAGE_SIZE) -> object | None:
+    if not items:
+        print("Nenhuma entrada encontrada.")
+        return None
+
+    page = 0
+    total_pages = (len(items) + page_size - 1) // page_size
+    while True:
+        start = page * page_size
+        page_items = items[start : start + page_size]
+        print(f"\n{title}")
+        print(f"Página {page + 1}/{total_pages}")
+        for index, item in enumerate(page_items, start=1):
+            print(f"{index}) {formatter(item)}")
+        print("n = próxima, p = anterior, 0 = voltar")
+
+        answer = input("Escolha: ").strip().lower()
+        if answer in {"0", "q"}:
+            return None
+        if answer == "n":
+            if page + 1 < total_pages:
+                page += 1
+            else:
+                print("Você já está na última página.")
+            continue
+        if answer == "p":
+            if page > 0:
+                page -= 1
+            else:
+                print("Você já está na primeira página.")
+            continue
+        if answer.isdigit() and 1 <= int(answer) <= len(page_items):
+            return page_items[int(answer) - 1]
+        print("Opção inválida. Digite um número, n, p, 0 ou q.")
 
 
 def catalog_id_exists(catalog: dict, item_id: str) -> bool:
@@ -252,28 +302,45 @@ def repo_relative(repo_root: Path, path: Path) -> str:
     return path.relative_to(repo_root).as_posix()
 
 
+def relative_display(root: Path, path: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def prompt_action() -> str:
     print("\nAplicar operação?")
     print("1) Copiar arquivos e atualizar catálogo")
     print("2) Dry-run: mostrar o que faria")
     print("0) Cancelar")
     while True:
-        answer = input("Escolha: ").strip()
-        if answer in {"1", "2", "0"}:
+        answer = input("Escolha: ").strip().lower()
+        if answer in {"q", "0"}:
+            return "0"
+        if answer in {"1", "2"}:
             return answer
         print("Opção inválida.")
 
 
-def add_pdf_flow(args: argparse.Namespace) -> None:
+def add_pdf_flow(args: argparse.Namespace) -> dict | None:
     term = input("Termo de busca para PDF: ").strip()
     if not term:
         print("Busca cancelada.")
-        return
+        return None
 
     results = search_pdfs(args.calibre_root, term)
-    chosen = choose_result(results, lambda path: str(path))
+    chosen = choose_result(results, lambda path: relative_display(args.calibre_root, path))
     if not chosen:
-        return
+        return None
+
+    return import_pdf_path(args, chosen)
+
+
+def import_pdf_path(args: argparse.Namespace, chosen: Path) -> dict | None:
+    if not chosen.exists():
+        print("PDF não encontrado.")
+        return None
 
     metadata = infer_pdf_metadata(chosen, args.calibre_root)
     print("\nRevise os metadados:")
@@ -288,7 +355,7 @@ def add_pdf_flow(args: argparse.Namespace) -> None:
     catalog = load_catalog(args.catalog)
     if catalog_id_exists(catalog, item_id):
         print(f"Operação recusada: o id '{item_id}' já existe no catálogo.")
-        return
+        return None
 
     author_slug = slugify(author or "autor-desconhecido")
     title_slug = slugify(title or chosen.stem)
@@ -300,7 +367,7 @@ def add_pdf_flow(args: argparse.Namespace) -> None:
         overwrite = confirm(f"O arquivo de destino já existe: {destination_file}. Sobrescrever explicitamente?", False)
         if not overwrite:
             print("Operação cancelada.")
-            return
+            return None
 
     item = {
         "id": item_id,
@@ -317,10 +384,10 @@ def add_pdf_flow(args: argparse.Namespace) -> None:
     action = prompt_action()
     if action == "0":
         print("Operação cancelada.")
-        return
+        return None
     if action == "2":
         print("Dry-run concluído. Nenhum arquivo foi copiado e o catálogo não foi alterado.")
-        return
+        return None
 
     destination_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(chosen, destination_file)
@@ -328,6 +395,9 @@ def add_pdf_flow(args: argparse.Namespace) -> None:
     save_catalog(args.catalog, catalog)
     print("PDF importado com sucesso.")
     print_urls("pdf.html", item_id)
+    context = {"kind": "pdf", "id": item_id, "page": "pdf.html"}
+    post_import_menu(args, context)
+    return context
 
 
 def print_pdf_summary(source: Path, destination: Path, item: dict) -> None:
@@ -339,21 +409,33 @@ def print_pdf_summary(source: Path, destination: Path, item: dict) -> None:
     print_urls("pdf.html", item["id"])
 
 
-def add_album_flow(args: argparse.Namespace) -> None:
+def add_album_flow(args: argparse.Namespace) -> dict | None:
     term = input("Termo de busca para álbum: ").strip()
     if not term:
         print("Busca cancelada.")
-        return
+        return None
 
     results = search_album_dirs(args.music_root, term)
     chosen = choose_result(
         results,
-        lambda item: f"{item[0]} | {len(item[1])} faixas | {human_size(item[2])}",
+        lambda item: f"{relative_display(args.music_root, item[0])} | {len(item[1])} faixas | {human_size(item[2])}",
     )
     if not chosen:
-        return
+        return None
 
     album_dir, tracks, total_size = chosen
+    return import_album_dir(args, album_dir, tracks, total_size)
+
+
+def import_album_dir(
+    args: argparse.Namespace, album_dir: Path, tracks: list[Path] | None = None, total_size: int | None = None
+) -> dict | None:
+    tracks = tracks if tracks is not None else direct_audio_files(album_dir)
+    total_size = total_size if total_size is not None else sum(track.stat().st_size for track in tracks)
+    if not tracks:
+        print("Nenhum arquivo de áudio encontrado no nível direto desta pasta.")
+        return None
+
     cover = find_cover(album_dir)
     metadata = infer_album_metadata(album_dir, args.music_root)
 
@@ -369,7 +451,7 @@ def add_album_flow(args: argparse.Namespace) -> None:
     catalog = load_catalog(args.catalog)
     if catalog_id_exists(catalog, item_id):
         print(f"Operação recusada: o id '{item_id}' já existe no catálogo.")
-        return
+        return None
 
     destination_dir = args.repo_root / "music" / slugify(artist or "artista-desconhecido") / slugify(title or album_dir.name)
     overwrite = False
@@ -377,7 +459,7 @@ def add_album_flow(args: argparse.Namespace) -> None:
         overwrite = confirm(f"O diretório de destino já existe: {destination_dir}. Sobrescrever explicitamente?", False)
         if not overwrite:
             print("Operação cancelada.")
-            return
+            return None
 
     copied_tracks = build_track_entries(args.repo_root, destination_dir, tracks)
     item = {
@@ -398,10 +480,10 @@ def add_album_flow(args: argparse.Namespace) -> None:
     action = prompt_action()
     if action == "0":
         print("Operação cancelada.")
-        return
+        return None
     if action == "2":
         print("Dry-run concluído. Nenhum arquivo foi copiado e o catálogo não foi alterado.")
-        return
+        return None
 
     if destination_dir.exists() and overwrite:
         shutil.rmtree(destination_dir)
@@ -416,6 +498,9 @@ def add_album_flow(args: argparse.Namespace) -> None:
     save_catalog(args.catalog, catalog)
     print("Álbum importado com sucesso.")
     print_urls("album.html", item_id)
+    context = {"kind": "album", "id": item_id, "page": "album.html"}
+    post_import_menu(args, context)
+    return context
 
 
 def find_cover(album_dir: Path) -> Path | None:
@@ -525,6 +610,251 @@ def validate_catalog(args: argparse.Namespace) -> None:
     print(f"Álbuns: {len(catalog.get('albums', []))}")
 
 
+def browse_calibre(args: argparse.Namespace) -> dict | None:
+    authors = list_top_level_dirs(args.calibre_root)
+    author = choose_from_list(
+        authors,
+        lambda path: relative_display(args.calibre_root, path),
+        "Autores / pastas principais",
+    )
+    if not author:
+        return None
+
+    books = sorted([path for path in author.iterdir() if path.is_dir()], key=natural_sort_key)
+    book = choose_from_list(
+        books,
+        lambda path: relative_display(args.calibre_root, path),
+        f"Livros em {author.name}",
+    )
+    if not book:
+        return None
+
+    pdfs = sorted(book.rglob("*.pdf"), key=natural_sort_key)
+    pdf = choose_from_list(
+        pdfs,
+        lambda path: relative_display(args.calibre_root, path),
+        f"PDFs em {book.name}",
+    )
+    if not pdf:
+        return None
+    return import_pdf_path(args, pdf)
+
+
+def browse_music(args: argparse.Namespace) -> dict | None:
+    artists = list_top_level_dirs(args.music_root)
+    artist = choose_from_list(
+        artists,
+        lambda path: relative_display(args.music_root, path),
+        "Artistas / pastas principais",
+    )
+    if not artist:
+        return None
+    return browse_music_dir(args, artist)
+
+
+def browse_music_dir(args: argparse.Namespace, directory: Path) -> dict | None:
+    current = directory
+    while True:
+        tracks = direct_audio_files(current)
+        if tracks:
+            total_size = sum(track.stat().st_size for track in tracks)
+            print(f"\n{relative_display(args.music_root, current)}")
+            print(f"Esta pasta parece ser um álbum: {len(tracks)} faixas | {human_size(total_size)}")
+            print("1) Importar esta pasta como álbum")
+            print("2) Ver subpastas")
+            print("0) Voltar")
+            answer = input("Escolha: ").strip().lower()
+            if answer == "1":
+                return import_album_dir(args, current, tracks, total_size)
+            if answer in {"0", "q"}:
+                return None
+            if answer != "2":
+                print("Opção inválida.")
+                continue
+
+        subdirs = sorted([path for path in current.iterdir() if path.is_dir()], key=natural_sort_key)
+        next_dir = choose_from_list(
+            subdirs,
+            format_music_browse_item,
+            f"Pastas em {relative_display(args.music_root, current)}",
+        )
+        if not next_dir:
+            return None
+        current = next_dir
+
+
+def format_music_browse_item(path: Path) -> str:
+    tracks = direct_audio_files(path)
+    if tracks:
+        total_size = sum(track.stat().st_size for track in tracks)
+        return f"{path.name} | {len(tracks)} faixas | {human_size(total_size)}"
+    return path.name
+
+
+def pdf_submenu(args: argparse.Namespace) -> None:
+    while True:
+        print("\nPDFs / Biblioteca Calibre\n")
+        print("1) Buscar PDF por termo")
+        print("2) Navegar autores/pastas principais")
+        print("3) Listar PDFs já cadastrados no catálogo")
+        print("0) Voltar ao menu principal")
+        choice = input("Escolha: ").strip().lower()
+
+        if choice == "1":
+            add_pdf_flow(args)
+        elif choice == "2":
+            browse_calibre(args)
+        elif choice == "3":
+            list_catalog_pdfs(args)
+        elif choice in {"0", "q"}:
+            return
+        else:
+            print("Opção inválida.")
+
+
+def music_submenu(args: argparse.Namespace) -> None:
+    while True:
+        print("\nMúsica / Biblioteca musical\n")
+        print("1) Buscar álbum por termo")
+        print("2) Navegar artistas/pastas principais")
+        print("3) Listar álbuns já cadastrados no catálogo")
+        print("0) Voltar ao menu principal")
+        choice = input("Escolha: ").strip().lower()
+
+        if choice == "1":
+            add_album_flow(args)
+        elif choice == "2":
+            browse_music(args)
+        elif choice == "3":
+            list_catalog_albums(args)
+        elif choice in {"0", "q"}:
+            return
+        else:
+            print("Opção inválida.")
+
+
+def post_import_menu(args: argparse.Namespace, context: dict) -> None:
+    while True:
+        print("\nPós-importação\n")
+        print("1) Validar catálogo")
+        print("2) Mostrar git status")
+        print("3) Fazer commit")
+        print("4) Fazer commit e push")
+        print("5) Testar URLs locais esperadas com curl -I, se houver servidor local ativo")
+        print("0) Voltar ao menu principal")
+        choice = input("Escolha: ").strip().lower()
+
+        if choice == "1":
+            validate_catalog(args)
+        elif choice == "2":
+            git_status_short(args.repo_root)
+        elif choice == "3":
+            git_commit_interactive(args.repo_root, context)
+        elif choice == "4":
+            committed_or_clean = git_commit_interactive(args.repo_root, context)
+            if committed_or_clean:
+                git_push_interactive(args.repo_root)
+        elif choice == "5":
+            test_local_urls(context)
+        elif choice in {"0", "q"}:
+            return
+        else:
+            print("Opção inválida.")
+
+
+def run_command(command: list[str], cwd: Path, check: bool = False) -> subprocess.CompletedProcess:
+    try:
+        return subprocess.run(command, cwd=cwd, text=True, capture_output=True, check=check)
+    except FileNotFoundError:
+        return subprocess.CompletedProcess(command, 127, "", f"Comando não encontrado: {command[0]}")
+    except subprocess.CalledProcessError as error:
+        return error
+
+
+def git_status_short(repo_root: Path) -> str:
+    result = run_command(["git", "status", "--short"], repo_root)
+    output = result.stdout.strip()
+    print(output if output else "Sem mudanças no worktree.")
+    if result.stderr.strip():
+        print(result.stderr.strip())
+    return output
+
+
+def git_current_branch(repo_root: Path) -> str:
+    result = run_command(["git", "branch", "--show-current"], repo_root)
+    branch = result.stdout.strip()
+    return branch or "(branch desconhecida)"
+
+
+def suggested_commit_message(context: dict | None) -> str:
+    if not context:
+        return "Add selected library materials"
+    if context.get("kind") == "pdf":
+        return "Add selected PDF to pages library"
+    if context.get("kind") == "album":
+        return "Add selected album to pages library"
+    return "Add selected library materials"
+
+
+def git_commit_interactive(repo_root: Path, context: dict | None = None) -> bool:
+    status = git_status_short(repo_root)
+    if not status:
+        print("Nada para commitar.")
+        return True
+
+    message = prompt_with_default("Mensagem de commit", suggested_commit_message(context))
+    if not confirm("Confirmar git add . e git commit?", False):
+        print("Commit cancelado.")
+        return False
+
+    add_result = run_command(["git", "add", "."], repo_root)
+    if add_result.returncode != 0:
+        print(add_result.stderr.strip() or "Falha ao executar git add.")
+        return False
+
+    commit_result = run_command(["git", "commit", "-m", message], repo_root)
+    if commit_result.stdout.strip():
+        print(commit_result.stdout.strip())
+    if commit_result.stderr.strip():
+        print(commit_result.stderr.strip())
+    return commit_result.returncode == 0
+
+
+def git_push_interactive(repo_root: Path) -> None:
+    branch = git_current_branch(repo_root)
+    print(f"Branch atual: {branch}")
+    if not confirm("Confirmar git push?", False):
+        print("Push cancelado.")
+        return
+
+    result = run_command(["git", "push"], repo_root)
+    if result.stdout.strip():
+        print(result.stdout.strip())
+    if result.stderr.strip():
+        print(result.stderr.strip())
+    if result.returncode != 0:
+        print("git push falhou.")
+
+
+def test_local_urls(context: dict | None = None) -> None:
+    urls = [
+        "http://localhost:8000/",
+        "http://localhost:8000/data/catalog.json",
+    ]
+    if context and context.get("page") and context.get("id"):
+        urls.append(f"http://localhost:8000/{context['page']}?id={context['id']}")
+
+    for url in urls:
+        try:
+            request = Request(url, method="HEAD")
+            with urlopen(request, timeout=3) as response:
+                print(f"{url} -> {response.status} {response.reason}")
+        except URLError:
+            print(f"{url} -> sem resposta. Inicie python3 -m http.server 8000.")
+        except OSError as error:
+            print(f"{url} -> erro local: {error}")
+
+
 def main_menu(args: argparse.Namespace) -> None:
     while True:
         print("\nPages Library Importer\n")
@@ -534,19 +864,19 @@ def main_menu(args: argparse.Namespace) -> None:
         print("4) Listar álbuns já cadastrados no catálogo")
         print("5) Validar catálogo")
         print("0) Sair")
-        choice = input("Escolha: ").strip()
+        choice = input("Escolha: ").strip().lower()
 
         if choice == "1":
-            add_pdf_flow(args)
+            pdf_submenu(args)
         elif choice == "2":
-            add_album_flow(args)
+            music_submenu(args)
         elif choice == "3":
             list_catalog_pdfs(args)
         elif choice == "4":
             list_catalog_albums(args)
         elif choice == "5":
             validate_catalog(args)
-        elif choice == "0":
+        elif choice in {"0", "q"}:
             print("Saindo.")
             return
         else:
@@ -577,7 +907,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Erro ao carregar catálogo: {error}", file=sys.stderr)
         return 1
 
-    main_menu(args)
+    try:
+        main_menu(args)
+    except EOFError:
+        print("\nSaindo.")
     return 0
 
 
