@@ -131,15 +131,37 @@ O player usa um único elemento `<audio controls>` e cria elementos `<source>` a
 
 ## Adicionar materiais com o importador interativo
 
+O importador fica em `scripts/library-importer.py`. Esse arquivo é apenas um wrapper; a implementação fica no pacote `scripts/library_importer/`, separado por responsabilidades como catálogo, caminhos, busca de mídia, importação, remoção, UI e Git.
+
+Para usar com a interface enriquecida opcional, crie um venv e instale as dependências:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
 Rode o importador a partir da raiz do repositório:
 
 ```bash
 python3 scripts/library-importer.py
 ```
 
-Ele busca PDFs em `/srv/media/calibre-library` e álbuns em `/srv/media/music`. É possível buscar por termo ou navegar pelas pastas de autores/artistas até escolher um PDF ou álbum. O script copia os arquivos escolhidos para dentro deste repositório e atualiza `data/catalog.json`.
+Opcionalmente, instale Rich para uma interface de terminal mais legível, com tabelas e painéis:
+
+```bash
+python3 -m pip install rich
+```
+
+Rich é opcional. Sem ele, o importador continua funcionando no modo simples com `print()` e `input()`.
+
+Ele busca PDFs em `/srv/media/calibre-library` e álbuns em `/srv/media/music`. É possível buscar por termo ou navegar pelas pastas de autores/artistas até escolher um PDF ou álbum. O script lê essas bibliotecas originais, copia os arquivos escolhidos para dentro deste repositório e atualiza `data/catalog.json`.
 
 Antes de aplicar, o importador mostra um resumo e oferece dry-run. Ele também permite remover PDFs ou álbuns do catálogo e, com confirmação explícita, apagar os arquivos associados dentro do repositório. Depois de uma alteração, o menu pode validar o catálogo, mostrar `git status`, fazer commit e fazer push. Commit e push sempre pedem confirmação explícita.
+
+Regra de negócio principal: o importador nunca apaga, move, renomeia ou modifica os originais em `/srv/media/music` ou `/srv/media/calibre-library`. GitHub Pages só publica arquivos dentro do repo, então o script trabalha com cópias publicadas em `pdfs/...` e `music/...`.
+
+O fluxo de remoção afeta somente entradas de `data/catalog.json` e, quando confirmado, essas cópias publicadas dentro do repo `pages-library`. Remover uma cópia de PDF apaga apenas o arquivo em `pdfs/`. Remover uma cópia de álbum apaga apenas o diretório copiado em `music/`. Para apagar a cópia de um álbum, o script exige confirmação textual com `APAGAR-COPIA`.
 
 Fluxo recomendado:
 
@@ -169,6 +191,8 @@ git add .
 git commit -m "Add selected library materials"
 git push
 ```
+
+Rich melhora a CLI atual. Uma TUI completa com Textual pode ser uma evolução futura, mas não é necessária agora.
 
 ## GitHub Pages
 
