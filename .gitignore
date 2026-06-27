@@ -1,3 +1,8 @@
 
 # Catalog backups
 /data/catalog.json.bak-*
+
+# Python local environment
+.venv/
+__pycache__/
+*.pyc
