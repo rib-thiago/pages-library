@@ -557,6 +557,118 @@
         }
       ],
       "cover": "music/nana-vasconcelos/bush-dance/cover.jpg"
+    },
+    {
+      "id": "fripp-eno-fripp-eno-1975",
+      "artist": "Fripp & Eno",
+      "title": "Fripp & Eno",
+      "year": "1975",
+      "collection": "Música",
+      "tags": [],
+      "description": "Álbum selecionado da biblioteca musical.",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Wind On Water",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/01-wind-on-water.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Evening Star",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/02-evening-star.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Evensong",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/03-evensong.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Wind On Wind",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/04-wind-on-wind.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 5,
+          "title": "An Index Of Metals I",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/05-an-index-of-metals-i.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 6,
+          "title": "An Index Of Metals II",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/06-an-index-of-metals-ii.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 7,
+          "title": "An Index Of Metals III",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/07-an-index-of-metals-iii.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 8,
+          "title": "An Index Of Metals IV",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/08-an-index-of-metals-iv.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 9,
+          "title": "An Index Of Metals V",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/09-an-index-of-metals-v.flac",
+              "type": "audio/flac"
+            }
+          ]
+        },
+        {
+          "number": 10,
+          "title": "An Index Of Metals VI",
+          "sources": [
+            {
+              "src": "music/fripp-eno/fripp-eno/10-an-index-of-metals-vi.flac",
+              "type": "audio/flac"
+            }
+          ]
+        }
+      ],
+      "cover": "music/fripp-eno/fripp-eno/cover.jpg"
     }
   ]
 }
