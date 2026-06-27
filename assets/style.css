@@ -288,6 +288,16 @@ a:focus-visible {
   list-style: none;
 }
 
+.track-item {
+  border-radius: 6px;
+}
+
+.track-item.is-playing .track-button {
+  border-color: var(--accent);
+  background: var(--surface-strong);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
 .track-button {
   width: 100%;
   min-height: 44px;
@@ -307,6 +317,56 @@ a:focus-visible {
   border-color: var(--accent);
   background: var(--surface-strong);
   outline: none;
+}
+
+.player-panel {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.album-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.control-button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #14171b;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.control-button:hover,
+.control-button:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface-strong);
+  outline: none;
+}
+
+.repeat-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--muted);
+}
+
+.player-status {
+  min-height: 1.5em;
+  margin: 12px 0 8px;
+  color: var(--muted);
+}
+
+.player-status.error {
+  color: var(--danger);
 }
 
 .audio-player {

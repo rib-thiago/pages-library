@@ -1,4 +1,4 @@
-const APP_VERSION = "20260620-3";
+const APP_VERSION = "20260627-player";
 const CATALOG_PATH = `data/catalog.json?v=${Date.now()}`;
 
 async function loadCatalog() {
@@ -171,10 +171,22 @@ function renderAlbumPage(catalog) {
           ${formatTags(album.tags)}
           <p class="detail-description">${escapeHtml(album.description)}</p>
         </div>
-        <audio class="audio-player" id="audio-player" controls preload="metadata"></audio>
+        <div class="player-panel">
+          <div class="album-controls">
+            <button class="control-button" id="play-album" type="button">Tocar álbum</button>
+            <button class="control-button" id="previous-track" type="button">Anterior</button>
+            <button class="control-button" id="next-track" type="button">Próxima</button>
+            <label class="repeat-control">
+              <input id="repeat-album" type="checkbox">
+              Repetir álbum
+            </label>
+          </div>
+          <p class="player-status" id="player-status" role="status">Nenhuma faixa selecionada</p>
+          <audio class="audio-player" id="audio-player" controls preload="metadata"></audio>
+        </div>
         <ol class="track-list" id="track-list">
           ${(album.tracks || []).map((track, index) => `
-            <li>
+            <li class="track-item" data-track-index="${index}">
               <button class="track-button" type="button" data-track-index="${index}">
                 ${index + 1}. ${escapeHtml(track.title)}
               </button>
@@ -189,22 +201,120 @@ function renderAlbumPage(catalog) {
 }
 
 function setupTrackPlayer(album) {
+  const tracks = album.tracks || [];
   const player = document.querySelector("#audio-player");
+  const playAlbumButton = document.querySelector("#play-album");
+  const previousButton = document.querySelector("#previous-track");
+  const nextButton = document.querySelector("#next-track");
+  const repeatCheckbox = document.querySelector("#repeat-album");
+  const status = document.querySelector("#player-status");
   const buttons = [...document.querySelectorAll(".track-button")];
+  const items = [...document.querySelectorAll(".track-item")];
+  let currentIndex = -1;
+  let reachedAlbumEnd = false;
+
+  function trackLabel(index) {
+    const track = tracks[index];
+    return `${index + 1}/${tracks.length}: ${track.title}`;
+  }
+
+  function setStatus(message, isError = false) {
+    status.textContent = message;
+    status.classList.toggle("error", isError);
+  }
+
+  function updateActiveTrack() {
+    buttons.forEach((button) => {
+      button.classList.toggle("active", Number(button.dataset.trackIndex) === currentIndex);
+    });
+    items.forEach((item) => {
+      item.classList.toggle("is-playing", Number(item.dataset.trackIndex) === currentIndex);
+    });
+  }
+
+  function loadTrack(index, shouldPlay) {
+    if (!tracks[index]) {
+      return;
+    }
+
+    const sources = tracks[index].sources || [];
+    if (sources.length === 0) {
+      setStatus("Não foi possível reproduzir esta faixa neste navegador.", true);
+      return;
+    }
+
+    currentIndex = index;
+    reachedAlbumEnd = false;
+    player.innerHTML = sources
+      .map((source) => `<source src="${escapeHtml(source.src)}" type="${escapeHtml(source.type)}">`)
+      .join("");
+    player.load();
+    updateActiveTrack();
+
+    if (!shouldPlay) {
+      setStatus(`Pausado: ${tracks[index].title}`);
+      return;
+    }
+
+    setStatus(`Tocando ${trackLabel(index)}`);
+    player.play().catch(() => {
+      setStatus("Não foi possível reproduzir esta faixa neste navegador.", true);
+    });
+  }
+
+  function playTrack(index) {
+    loadTrack(index, true);
+  }
+
+  function playCurrentOrFirst() {
+    playTrack(currentIndex >= 0 ? currentIndex : 0);
+  }
+
+  function playPrevious() {
+    playTrack(Math.max(currentIndex - 1, 0));
+  }
+
+  function playNext() {
+    if (currentIndex < tracks.length - 1) {
+      playTrack(currentIndex + 1);
+      return;
+    }
+
+    if (repeatCheckbox.checked && tracks.length > 0) {
+      playTrack(0);
+      return;
+    }
+
+    reachedAlbumEnd = true;
+    player.pause();
+    setStatus("Fim do álbum");
+  }
 
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
-      const track = album.tracks[Number(button.dataset.trackIndex)];
-      player.innerHTML = (track.sources || [])
-        .map((source) => `<source src="${escapeHtml(source.src)}" type="${escapeHtml(source.type)}">`)
-        .join("");
-      player.load();
-      player.play().catch(() => {
-        // Alguns navegadores bloqueiam autoplay; o usuário ainda pode acionar o player.
-      });
-      buttons.forEach((item) => item.classList.remove("active"));
-      button.classList.add("active");
+      playTrack(Number(button.dataset.trackIndex));
     });
+  });
+
+  playAlbumButton.addEventListener("click", playCurrentOrFirst);
+  previousButton.addEventListener("click", playPrevious);
+  nextButton.addEventListener("click", playNext);
+
+  player.addEventListener("play", () => {
+    if (currentIndex >= 0) {
+      setStatus(`Tocando ${trackLabel(currentIndex)}`);
+    }
+  });
+
+  player.addEventListener("pause", () => {
+    if (currentIndex >= 0 && !player.ended && !reachedAlbumEnd) {
+      setStatus(`Pausado: ${tracks[currentIndex].title}`);
+    }
+  });
+
+  player.addEventListener("ended", playNext);
+  player.addEventListener("error", () => {
+    setStatus("Não foi possível reproduzir esta faixa neste navegador.", true);
   });
 }
 
