@@ -1,5 +1,53 @@
-const APP_VERSION = "20260627-player";
+const APP_VERSION = "20260627-theme";
 const CATALOG_PATH = `data/catalog.json?v=${Date.now()}`;
+const THEME_STORAGE_KEY = "pages-library-theme";
+
+function readSavedTheme() {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY);
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveTheme(theme) {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (error) {
+    // O tema ainda funciona na página atual mesmo se o navegador bloquear storage.
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+}
+
+function updateThemeToggle(button) {
+  const isLight = document.documentElement.dataset.theme === "light";
+  button.textContent = isLight ? "Tema escuro" : "Tema claro";
+  button.setAttribute("aria-pressed", String(isLight));
+  button.setAttribute("aria-label", isLight ? "Alternar para tema escuro" : "Alternar para tema claro");
+}
+
+function initThemeToggle() {
+  const savedTheme = readSavedTheme();
+  const initialTheme = savedTheme === "light" ? "light" : "dark";
+  const button = document.querySelector(".theme-toggle");
+
+  applyTheme(initialTheme);
+
+  if (!button) {
+    return;
+  }
+
+  updateThemeToggle(button);
+  button.addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    applyTheme(nextTheme);
+    saveTheme(nextTheme);
+    updateThemeToggle(button);
+  });
+}
 
 async function loadCatalog() {
   const response = await fetch(CATALOG_PATH, { cache: "no-store" });
@@ -319,6 +367,8 @@ function setupTrackPlayer(album) {
 }
 
 async function init() {
+  initThemeToggle();
+
   const page = document.body.dataset.page;
 
   try {
